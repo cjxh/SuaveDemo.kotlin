@@ -1,0 +1,82 @@
+buildscript {
+    ext.kotlin_version = '1.1.50'
+
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+plugins {
+    id 'nu.studer.jooq' version '2.0.9'
+}
+
+group 'com.doordash'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'kotlin'
+apply plugin: 'application'
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    jooqRuntime 'postgresql:postgresql:9.1-901.jdbc4'
+
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    compile group: "org.http4k", name: "http4k-core", version: "3.9.0"
+    compile group: "org.http4k", name: "http4k-server-jetty", version: "3.9.0"
+    compile group: "org.http4k", name: "http4k-client-okhttp", version: "3.9.0"
+    compile group: "org.http4k", name: "http4k-server-jetty", version: "3.9.0"
+    compile group: "org.http4k", name: "http4k-template-handlebars", version: "3.9.0"
+    compile group: "org.jetbrains.kotlinx", name: "kotlinx-html-jvm", version: "0.6.6"
+    compile group: "org.jooq", name: "jooq"
+    compile group: 'postgresql', name: 'postgresql', version: '9.1-901.jdbc4'
+    compile group: 'org.jinq', name: 'jinq-jooq', version: '1.8.22'
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+jooq {
+    version = '3.10.1'
+    edition = 'OSS'
+    suavemusicstore(sourceSets.main) {
+        jdbc {
+            driver = 'org.postgresql.Driver'
+            url = 'jdbc:postgresql://localhost:5432/suavemusicstore'
+            user = 'suave'
+            password = '1234'
+        }
+        generator {
+            name = 'org.jooq.util.DefaultGenerator'
+            strategy {
+                name = 'org.jooq.util.DefaultGeneratorStrategy'
+            }
+            database {
+                name = 'org.jooq.util.postgres.PostgresDatabase'
+                inputSchema = 'public'
+            }
+            generate {
+                relations = true
+                deprecated = false
+                records = true
+                immutablePojos = true
+                fluentSetters = true
+            }
+            target {
+                packageName = 'com.doordash.db'
+            }
+        }
+    }
+}
+
+mainClassName = "com.doordash.MainKt"
